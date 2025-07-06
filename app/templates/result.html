@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Analysis Result</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+
+  <!-- Theme Toggle -->
+  <div class="text-end p-3">
+    <button id="toggle-theme" class="btn btn-sm btn-outline-dark">
+      <span id="theme-icon">🌙</span> Dark Mode
+    </button>
+  </div>
+
+  <div class="container-fluid px-5 mt-3">
+    <!-- Match Score -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="card-header bg-success text-white">
+          <h5 class="text-center mb-3">🎯 Skill Match Score: <strong>{{ score }}%</strong></h5>
+        </div>
+        <div class="progress" style="height: 25px;">
+          <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="{{ score }}" aria-valuemin="0" aria-valuemax="100">
+            {{ score }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Resume Text -->
+      <div class="col-lg-8 col-md-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">🧠 Extracted Resume Text</h5>
+          </div>
+          <div class="card-body">
+            <pre class="resume-text">{{ text | safe }}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Job Description -->
+      <div class="col-lg-4 col-md-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">📋 Job Description</h5>
+          </div>
+          <div class="card-body">
+            <pre class="resume-text">{{ jd }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skill Comparison -->
+    <div class="row mt-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            <strong>✅ Matched Skills</strong>
+          </div>
+          <div class="card-body">
+            <ul>
+              {% for skill in matched_skills %}   
+                <li>{{ skill }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-warning text-dark">
+              <strong>📄 Resume-only Skills</strong>
+          </div>
+          <div class="card-body">
+            <ul>
+              {% for skill in resume_skills if skill not in matched_skills %}
+                <li>{{ skill }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <strong>📌 JD-only Skills</strong>
+          </div>
+          <div class="card-body">
+            <ul>
+              {% for skill in jd_skills if skill not in matched_skills %}
+                <li>{{ skill }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categorized Skills -->
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-secondary text-white">
+        <strong>🧠 Categorized Matched Skills</strong>
+      </div>
+      <div class="card-body">
+        {% for category, skills in categorized_skills.items() %}
+          <h6 class="mt-2">{{ category }}</h6>
+          <ul>
+            {% for skill in skills %}
+              <li>{{ skill }}</li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Chart Visualization -->
+    <div class="row mt-4">
+      <!-- Radar Chart -->
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <strong>🕸️ Skill Category Coverage</strong>
+          </div>
+        <div class="card-body">
+          <canvas id="radarChart"
+            data-labels='{{ category_labels | tojson }}'
+            data-data='{{ category_counts | tojson }}'
+            height="200" width="200">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-primary text-white">
+          <strong>📊 Skill Match Overview</strong>
+        </div>
+        <div class="card-body">
+          <canvas id="skillChart"
+            data-matched='{{ matched_count }}'
+            data-resume-only='{{ resume_only_count }}'
+            data-jd-only='{{ jd_only_count }}'
+            height="150">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Export & Back Buttons -->
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary" onclick="window.print()">🖨️ Export as PDF</button>
+      <a href="/" class="btn btn-outline-secondary ms-2">← Back</a>
+    </div>
+  </div>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    const toggleBtn = document.getElementById('toggle-theme');
+    const themeIcon = document.getElementById('theme-icon');
+    const body = document.body;
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') enableDarkMode();
+
+    toggleBtn.addEventListener('click', () => {
+      const isDark = body.classList.toggle('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateButton(isDark);
+    });
+
+    function enableDarkMode() {
+      body.classList.add('dark-mode');
+      updateButton(true);
+    }
+
+    function updateButton(isDark) {
+      toggleBtn.classList.toggle('btn-outline-dark', !isDark);
+      toggleBtn.classList.toggle('btn-outline-light', isDark);
+      toggleBtn.innerHTML = isDark
+        ? '<span id="theme-icon">☀️</span> Light Mode'
+        : '<span id="theme-icon">🌙</span> Dark Mode';
+    }
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>
