@@ -77,10 +77,10 @@ resume-screener/
 
 ## 📦 To Do
 
-- [ ] Add drag-and-drop file upload  
-- [ ] Export results as downloadable PDF  
-- [ ] Add Lottie animations or SVG loaders  
-- [ ] Deploy on Render / Vercel / GitHub Pages
+-  Add drag-and-drop file upload  
+-  Export results as downloadable PDF  
+-  Add Lottie animations or SVG loaders  
+-  Deploy on Render / Vercel / GitHub Pages
 
 ---
 
