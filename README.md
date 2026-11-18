@@ -60,21 +60,6 @@ python app.py
 
 ---
 
-## 📁 Project Structure
-
-resume-screener/
-├── app/
-│   ├── static/
-│   │   ├── css/
-│   │   └── js/
-│   ├── templates/
-│   └── routes.py
-├── requirements.txt
-├── app.py
-└── README.md
-
----
-
 ## 📦 To Do
 
 -  Add drag-and-drop file upload  
