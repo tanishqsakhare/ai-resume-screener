@@ -1,6 +1,6 @@
 # 🚀 AI Resume Screener
 
-A smart web application that analyzes resumes against job descriptions using AI and highlights matched skills, unmatched skills, and category-wise coverage — all with beautiful visualizations.
+A smart web application that analyzes resumes against job descriptions using AI and highlights matched skills, unmatched skills, and category-wise coverage with visualizations.
 
 ---
 
